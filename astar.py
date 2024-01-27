@@ -44,35 +44,39 @@ def a_star():
 
 
 
-        # draw the grid
-        for i in range(0, side_length):
-            for j in range(0, side_length):
-                # drawing walls
-                if grid[j][i].is_wall:
-                    pygame.draw.rect(wn, (0, 0, 0), pygame.Rect(grid[j][i].y_cord + 1,
-                                                                grid[j][i].x_cord + 1, spot_size - 2, spot_size - 2))
-                # drawing the open set
-                elif grid[j][i] in o_set:
-                    pygame.draw.rect(wn, (0, 255, 0), pygame.Rect(grid[j][i].y_cord + 1,
-                                                                  grid[j][i].x_cord + 1, spot_size - 2, spot_size - 2))
-                # drawing the closed set
-                elif grid[j][i] in c_set:
-                    pygame.draw.rect(wn, (255, 0, 0), pygame.Rect(grid[j][i].y_cord + 1,
-                                                                  grid[j][i].x_cord + 1, spot_size - 2, spot_size - 2))
-            temp = end
-            dist = 0
-            while temp.previous:
-                dist += 1
-                path.append(temp.previous)
-                temp = temp.previous
-            for i in path:
-                pygame.draw.rect(wn, (0, 0, 255), pygame.Rect(i.y_cord + 1,
-                                                              i.x_cord + 1, spot_size - 2, spot_size - 2))
+    # draw the grid
+    for i in range(0, side_length):
+        for j in range(0, side_length):
+            # drawing walls
+            if grid[j][i].is_wall:
+                pygame.draw.rect(wn, (0, 0, 0), pygame.Rect(grid[j][i].y_cord,
+                                                            grid[j][i].x_cord, 1, 1))
+            # drawing the open set
+            elif grid[j][i] in o_set:
+                pygame.draw.rect(wn, (0, 255, 0), pygame.Rect(grid[j][i].y_cord,
+                                                            grid[j][i].x_cord, 1, 1))
+            # drawing the closed set
+            elif grid[j][i] in c_set:
+                pygame.draw.rect(wn, (255, 0, 0), pygame.Rect(grid[j][i].y_cord,
+                                                            grid[j][i].x_cord, 1, 1))
 
-        # making the end square blue
-        pygame.draw.rect(wn, (0, 0, 255), pygame.Rect(end.y_cord + 1,
-                                                      end.x_cord + 1, spot_size - 2, spot_size - 2))
-        time.sleep(0)
+    temp = end
+    dist = 0
+    path = []
+    while temp.previous:
+        dist += 1
+        path.append(temp.previous)
+        temp = temp.previous
+
+    for i in path:
+        pygame.draw.rect(wn, (0, 0, 255), pygame.Rect(i.y_cord,
+                                                    i.x_cord, 1, 1))
+
+    # making the end square blue
+    pygame.draw.rect(wn, (0, 0, 255), pygame.Rect(end.y_cord,
+                                                end.x_cord, 1, 1))
+
+    time.sleep(0)
     print(dist)
 
 
@@ -102,7 +106,7 @@ class Spot:
         self.neighbors = []
         self.previous = None
 pygame.init()
-pixels = 700
+pixels = 1000
 wn = pygame.display.set_mode((pixels, pixels))
 wn.fill((255, 255, 255))
 
@@ -110,9 +114,9 @@ wn.fill((255, 255, 255))
 path = []
 
 # setting up grid
-side_length = 70
+side_length = 1000
 spot_size = pixels / side_length
-prob = 2
+prob = 0
 
 grid = []
 
