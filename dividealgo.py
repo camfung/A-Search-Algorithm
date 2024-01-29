@@ -2,11 +2,22 @@
 import random
 import pygame as pg
 
+
 # Constants for screen dimensions
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 1000
-BACKGROUND_COLOR = (255, 255, 255)  # White color
-SPOT_SIZE = 70  # Size of each spot in pixels
+SCREEN_WIDTH = 1300
+SCREEN_HEIGHT = 1300
+BACKGROUND_COLOR = (3, 12, 23)  # White color
+# GRID_WIDTH = 100
+# GRID_HEIGHT = 100
+# SPOT_SIZE = SCREEN_HEIGHT // GRID_HEIGHT  # Size of each spot in pixels
+
+SPOT_SIZE = 100
+GRID_WIDTH = SCREEN_WIDTH // SPOT_SIZE
+GRID_HEIGHT = SCREEN_HEIGHT // SPOT_SIZE
+PASSAGE_WIDTH = 5
+DEBUG = False
+SHOW_OUTLINES = True
+MAKE_BOARDER_WALLS = True
 
 # divide(grid, startx, endx, starty, endy, orientation):
 #     if endx - startx <= 1 or endy - starty <= 1:
@@ -29,22 +40,26 @@ SPOT_SIZE = 70  # Size of each spot in pixels
 
 
 def divide(grid, startx, endx, starty, endy, orientation="vertical"):
-    if endx - startx <= 2 or endy - starty <= 2:
-        yield
+
+    if orientation == "horizontal" and endy - starty <= PASSAGE_WIDTH:
         return
+    elif orientation == "vertical" and endx - startx <= PASSAGE_WIDTH:
+        return
+
     if orientation == "horizontal":
         middle = starty + (endy - starty) // 2
-        grid.drawStraightLine(middle, startx, middle, endx)
+        grid.splitGrid(middle, startx, middle, endx)
         yield
-        yield from divide(grid, startx, endx, starty, middle-1, "vertical")
+        yield from divide(grid, startx, endx, starty, middle, "vertical")
         yield
         yield from divide(grid, startx, endx, middle+1, endy, "vertical")
 
     elif orientation == "vertical":
         middle = startx + (endx - startx) // 2
-        grid.drawStraightLine(starty, middle, endy, middle)
+        grid.splitGrid(starty, middle, endy, middle)
+
         yield
-        yield from divide(grid, startx, middle-1, starty, endy, "horizontal")
+        yield from divide(grid, startx, middle, starty, endy, "horizontal")
         yield
         yield from divide(grid, middle+1, endx, starty, endy, "horizontal")
 
@@ -56,29 +71,30 @@ class Spot:
         self.row = row
         self.col = col
         self.is_wall = is_wall
-        self.x = row * SPOT_SIZE
-        self.y = col * SPOT_SIZE
+        self.x = col * SPOT_SIZE
+        self.y = row * SPOT_SIZE
 
     def draw(self, screen):
         color = (0, 0, 255) if self.is_wall else (255, 255, 255)
         outline_thickness = 1
         outline_color = (0, 0, 0)
-        # if self.is_wall:
-        # pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
-        # pg.draw.rect(screen, (0, 0, 0), (self.x - outline_thickness, self.y -
-        #                                  outline_thickness, SPOT_SIZE + 2 * outline_thickness, SPOT_SIZE + 2 * outline_thickness))
+        if self.is_wall and not SHOW_OUTLINES:
+            pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
 
         outline_thickness = 1  # Thickness of the outline
+        if SHOW_OUTLINES:
+            # Draw the outline rectangle
+            pg.draw.rect(screen, outline_color, (self.x - outline_thickness, self.y - outline_thickness,
+                                                 SPOT_SIZE + 2 * outline_thickness, SPOT_SIZE + 2 * outline_thickness))
 
-        # Draw the outline rectangle
-        pg.draw.rect(screen, outline_color, (self.x - outline_thickness, self.y - outline_thickness,
-                     SPOT_SIZE + 2 * outline_thickness, SPOT_SIZE + 2 * outline_thickness))
-
-        # Draw the inner rectangle
-        pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
+            # Draw the inner rectangle
+            pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
 
     def set_wall(self):
         self.is_wall = True
+
+    def __repr__(self):
+        return "{x}" if self.is_wall else "{ }"
 
 
 class Grid:
@@ -106,14 +122,49 @@ class Grid:
 
     def drawStraightLine(self, startrow, startcol, endrow, endcol):
         """
-        line must be horizontal or vertical
+        Draws a straight line on the grid. The line must be either horizontal or vertical.
         """
-        if startrow == endrow:
-            for i in range(startcol, endcol+1):
-                self.grid[i][startrow].set_wall()
-        elif startcol == endcol:
-            for i in range(startrow, endrow+1):
-                self.grid[startcol][i].set_wall()
+        # choose a random index to not make a wall
+        if startrow == endrow:  # Horizontal line
+            middle = startcol + (endcol - startcol) // 2
+            for col in range(startcol, endcol + 1):
+                self.grid[startrow][col].set_wall()
+        elif startcol == endcol:  # Vertical line
+            for row in range(startrow, endrow + 1):
+                self.grid[row][startcol].set_wall()
+
+    def splitGrid(self, startrow, startcol, endrow, endcol):
+        """
+        Draws a straight line on the grid. The line must be either horizontal or vertical.
+        """
+        # choose a random index to not make a wall
+        if startrow == endrow:  # Horizontal line
+            middle = startcol + (endcol - startcol) // 2
+            random_index = 0
+            while True:
+                random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for col in range(startcol, endcol + 1):
+                if col == random_index:
+                    continue
+                self.grid[startrow][col].set_wall()
+        elif startcol == endcol:  # Vertical line
+            middle = startcol + (endcol - startcol) // 2
+            random_index = 0
+            while True:
+                random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for row in range(startrow, endrow + 1):
+                if row == random_index:
+                    continue
+                self.grid[row][startcol].set_wall()
+
+    def __repr__(self):
+        return "\n".join(" ".join(str(spot) for spot in row) for row in self.grid)
 
 
 def main():
@@ -125,7 +176,7 @@ def main():
     pg.display.set_caption('Pygame Project')
 
     grid = Grid(SCREEN_WIDTH // SPOT_SIZE, SCREEN_HEIGHT // SPOT_SIZE)
-    grid.make_border_walls()
+    # grid.make_border_walls()
 
     # Create generator object
     divider = divide(grid, 0, grid.width-1, 0, grid.height-1)
@@ -147,6 +198,9 @@ def main():
 
         grid.draw(screen)
         pg.display.flip()
+
+    # Quit Pygame
+    pg.quit()
 
 
 if __name__ == '__main__':
