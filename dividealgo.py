@@ -11,11 +11,12 @@ BACKGROUND_COLOR = (3, 12, 23)  # White color
 # GRID_HEIGHT = 100
 # SPOT_SIZE = SCREEN_HEIGHT // GRID_HEIGHT  # Size of each spot in pixels
 
-SPOT_SIZE = 5
+SPOT_SIZE = 40
 GRID_WIDTH = SCREEN_WIDTH // SPOT_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // SPOT_SIZE
 PASSAGE_WIDTH = 2
 DEBUG = False
+SHOW_OUTLINES = True
 
 # divide(grid, startx, endx, starty, endy, orientation):
 #     if endx - startx <= 1 or endy - starty <= 1:
@@ -65,7 +66,18 @@ class Spot:
 
     def draw(self, screen):
         color = (0, 0, 255) if self.is_wall else (255, 255, 255)
-        if self.is_wall:
+        outline_thickness = 1
+        outline_color = (0, 0, 0)
+        if self.is_wall and not SHOW_OUTLINES:
+            pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
+
+        outline_thickness = 1  # Thickness of the outline
+        if SHOW_OUTLINES:
+            # Draw the outline rectangle
+            pg.draw.rect(screen, outline_color, (self.x - outline_thickness, self.y - outline_thickness,
+                                                 SPOT_SIZE + 2 * outline_thickness, SPOT_SIZE + 2 * outline_thickness))
+
+            # Draw the inner rectangle
             pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
 
     def set_wall(self):
@@ -105,27 +117,10 @@ class Grid:
         # choose a random index to not make a wall
         if startrow == endrow:  # Horizontal line
             middle = startcol + (endcol - startcol) // 2
-            random_index = 0
-            while True:
-                random_index = random.randint(startrow, endrow)
-                if random_index != middle:
-                    break
-
             for col in range(startcol, endcol + 1):
-                if col == random_index:
-                    continue
                 self.grid[startrow][col].set_wall()
         elif startcol == endcol:  # Vertical line
-            middle = startcol + (endcol - startcol) // 2
-            random_index = 0
-            while True:
-                random_index = random.randint(startrow, endrow)
-                if random_index != middle:
-                    break
-
             for row in range(startrow, endrow + 1):
-                if row == random_index:
-                    continue
                 self.grid[row][startcol].set_wall()
 
     def __repr__(self):
@@ -134,7 +129,7 @@ class Grid:
 
 def main():
     grid = Grid(GRID_WIDTH, GRID_HEIGHT)
-    # grid.make_border_walls()
+    grid.make_border_walls()
     print(grid)
     divide(grid, 0, grid.width-1, 0, grid.height-1)
     print(grid)
