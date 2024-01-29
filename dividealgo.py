@@ -11,12 +11,13 @@ BACKGROUND_COLOR = (3, 12, 23)  # White color
 # GRID_HEIGHT = 100
 # SPOT_SIZE = SCREEN_HEIGHT // GRID_HEIGHT  # Size of each spot in pixels
 
-SPOT_SIZE = 40
+SPOT_SIZE = 110
 GRID_WIDTH = SCREEN_WIDTH // SPOT_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // SPOT_SIZE
 PASSAGE_WIDTH = 2
 DEBUG = False
 SHOW_OUTLINES = True
+MAKE_BOARDER_WALLS = True
 
 # divide(grid, startx, endx, starty, endy, orientation):
 #     if endx - startx <= 1 or endy - starty <= 1:
@@ -39,19 +40,23 @@ SHOW_OUTLINES = True
 
 
 def divide(grid, startx, endx, starty, endy, orientation="vertical"):
-    if endx - startx <= PASSAGE_WIDTH or endy - starty <= PASSAGE_WIDTH:
+
+    if orientation == "horizontal" and endy - starty <= PASSAGE_WIDTH:
         return
+    elif orientation == "vertical" and endx - startx <= PASSAGE_WIDTH:
+        return
+
     if orientation == "horizontal":
         middle = starty + (endy - starty) // 2
         grid.drawStraightLine(middle, startx, middle, endx)
-        divide(grid, startx, endx, starty, middle-1, "vertical")
+        divide(grid, startx, endx, starty, middle, "vertical")
         divide(grid, startx, endx, middle+1, endy, "vertical")
 
     elif orientation == "vertical":
         middle = startx + (endx - startx) // 2
         grid.drawStraightLine(starty, middle, endy, middle)
 
-        divide(grid, startx, middle-1, starty, endy, "horizontal")
+        divide(grid, startx, middle, starty, endy, "horizontal")
         divide(grid, middle+1, endx, starty, endy, "horizontal")
 # Spot class
 
@@ -129,7 +134,8 @@ class Grid:
 
 def main():
     grid = Grid(GRID_WIDTH, GRID_HEIGHT)
-    grid.make_border_walls()
+    if MAKE_BOARDER_WALLS:
+        grid.make_border_walls()
     print(grid)
     divide(grid, 0, grid.width-1, 0, grid.height-1)
     print(grid)
