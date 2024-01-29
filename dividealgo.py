@@ -30,18 +30,24 @@ SPOT_SIZE = 70  # Size of each spot in pixels
 
 def divide(grid, startx, endx, starty, endy, orientation="vertical"):
     if endx - startx <= 2 or endy - starty <= 2:
+        yield
         return
     if orientation == "horizontal":
         middle = starty + (endy - starty) // 2
         grid.drawStraightLine(middle, startx, middle, endx)
-        divide(grid, startx, endx, starty, middle-1, "vertical")
-        divide(grid, startx, endx, middle+1, endy, "vertical")
+        yield
+        yield from divide(grid, startx, endx, starty, middle-1, "vertical")
+        yield
+        yield from divide(grid, startx, endx, middle+1, endy, "vertical")
 
     elif orientation == "vertical":
         middle = startx + (endx - startx) // 2
         grid.drawStraightLine(starty, middle, endy, middle)
-        divide(grid, startx, middle-1, starty, endy, "horizontal")
-        divide(grid, middle+1, endx, starty, endy, "horizontal")
+        yield
+        yield from divide(grid, startx, middle-1, starty, endy, "horizontal")
+        yield
+        yield from divide(grid, middle+1, endx, starty, endy, "horizontal")
+
 # Spot class
 
 
@@ -120,24 +126,27 @@ def main():
 
     grid = Grid(SCREEN_WIDTH // SPOT_SIZE, SCREEN_HEIGHT // SPOT_SIZE)
     grid.make_border_walls()
-    divide(grid, 0, grid.width-1, 0, grid.height-1)
-    # Main game loop
+
+    # Create generator object
+    divider = divide(grid, 0, grid.width-1, 0, grid.height-1)
+
     running = True
     while running:
-        # Fill the screen with the background color
         screen.fill(BACKGROUND_COLOR)
 
-        # Event loop
         for event in pg.event.get():
-            # Check for QUIT event to exit the loop
             if event.type == pg.QUIT:
                 running = False
-        grid.draw(screen)
-        # Update the display
-        pg.display.flip()
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    # Advance the generator
+                    try:
+                        next(divider)
+                    except StopIteration:
+                        pass
 
-    # Quit Pygame
-    pg.quit()
+        grid.draw(screen)
+        pg.display.flip()
 
 
 if __name__ == '__main__':
