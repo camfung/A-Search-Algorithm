@@ -11,10 +11,10 @@ BACKGROUND_COLOR = (3, 12, 23)  # White color
 # GRID_HEIGHT = 100
 # SPOT_SIZE = SCREEN_HEIGHT // GRID_HEIGHT  # Size of each spot in pixels
 
-SPOT_SIZE = 110
+SPOT_SIZE = 100
 GRID_WIDTH = SCREEN_WIDTH // SPOT_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // SPOT_SIZE
-PASSAGE_WIDTH = 2
+PASSAGE_WIDTH = 5
 DEBUG = False
 SHOW_OUTLINES = True
 MAKE_BOARDER_WALLS = True
@@ -48,13 +48,13 @@ def divide(grid, startx, endx, starty, endy, orientation="vertical"):
 
     if orientation == "horizontal":
         middle = starty + (endy - starty) // 2
-        grid.drawStraightLine(middle, startx, middle, endx)
+        grid.splitGrid(middle, startx, middle, endx)
         divide(grid, startx, endx, starty, middle, "vertical")
         divide(grid, startx, endx, middle+1, endy, "vertical")
 
     elif orientation == "vertical":
         middle = startx + (endx - startx) // 2
-        grid.drawStraightLine(starty, middle, endy, middle)
+        grid.splitGrid(starty, middle, endy, middle)
 
         divide(grid, startx, middle, starty, endy, "horizontal")
         divide(grid, middle+1, endx, starty, endy, "horizontal")
@@ -126,6 +126,36 @@ class Grid:
                 self.grid[startrow][col].set_wall()
         elif startcol == endcol:  # Vertical line
             for row in range(startrow, endrow + 1):
+                self.grid[row][startcol].set_wall()
+
+    def splitGrid(self, startrow, startcol, endrow, endcol):
+        """
+        Draws a straight line on the grid. The line must be either horizontal or vertical.
+        """
+        # choose a random index to not make a wall
+        if startrow == endrow:  # Horizontal line
+            middle = startcol + (endcol - startcol) // 2
+            random_index = 0
+            while True:
+                random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for col in range(startcol, endcol + 1):
+                if col == random_index:
+                    continue
+                self.grid[startrow][col].set_wall()
+        elif startcol == endcol:  # Vertical line
+            middle = startcol + (endcol - startcol) // 2
+            random_index = 0
+            while True:
+                random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for row in range(startrow, endrow + 1):
+                if row == random_index:
+                    continue
                 self.grid[row][startcol].set_wall()
 
     def __repr__(self):
