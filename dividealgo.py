@@ -6,7 +6,7 @@ import pygame as pg
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
 BACKGROUND_COLOR = (255, 255, 255)  # White color
-SPOT_SIZE = 10  # Size of each spot in pixels
+SPOT_SIZE = 70  # Size of each spot in pixels
 
 # divide(grid, startx, endx, starty, endy, orientation):
 #     if endx - startx <= 1 or endy - starty <= 1:
@@ -55,8 +55,21 @@ class Spot:
 
     def draw(self, screen):
         color = (0, 0, 255) if self.is_wall else (255, 255, 255)
-        if self.is_wall:
-            pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
+        outline_thickness = 1
+        outline_color = (0, 0, 0)
+        # if self.is_wall:
+        # pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
+        # pg.draw.rect(screen, (0, 0, 0), (self.x - outline_thickness, self.y -
+        #                                  outline_thickness, SPOT_SIZE + 2 * outline_thickness, SPOT_SIZE + 2 * outline_thickness))
+
+        outline_thickness = 1  # Thickness of the outline
+
+        # Draw the outline rectangle
+        pg.draw.rect(screen, outline_color, (self.x - outline_thickness, self.y - outline_thickness,
+                     SPOT_SIZE + 2 * outline_thickness, SPOT_SIZE + 2 * outline_thickness))
+
+        # Draw the inner rectangle
+        pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
 
     def set_wall(self):
         self.is_wall = True
@@ -90,10 +103,10 @@ class Grid:
         line must be horizontal or vertical
         """
         if startrow == endrow:
-            for i in range(int(endcol - startcol)):
+            for i in range(startcol, endcol+1):
                 self.grid[i][startrow].set_wall()
         elif startcol == endcol:
-            for i in range(int(endrow - startrow)):
+            for i in range(startrow, endrow+1):
                 self.grid[startcol][i].set_wall()
 
 
