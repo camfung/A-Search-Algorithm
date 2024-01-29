@@ -2,11 +2,20 @@
 import random
 import pygame as pg
 
+
 # Constants for screen dimensions
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 1000
-BACKGROUND_COLOR = (255, 255, 255)  # White color
-SPOT_SIZE = 10  # Size of each spot in pixels
+SCREEN_WIDTH = 1300
+SCREEN_HEIGHT = 1300
+BACKGROUND_COLOR = (3, 12, 23)  # White color
+# GRID_WIDTH = 100
+# GRID_HEIGHT = 100
+# SPOT_SIZE = SCREEN_HEIGHT // GRID_HEIGHT  # Size of each spot in pixels
+
+SPOT_SIZE = 5
+GRID_WIDTH = SCREEN_WIDTH // SPOT_SIZE
+GRID_HEIGHT = SCREEN_HEIGHT // SPOT_SIZE
+PASSAGE_WIDTH = 2
+DEBUG = False
 
 # divide(grid, startx, endx, starty, endy, orientation):
 #     if endx - startx <= 1 or endy - starty <= 1:
@@ -29,7 +38,7 @@ SPOT_SIZE = 10  # Size of each spot in pixels
 
 
 def divide(grid, startx, endx, starty, endy, orientation="vertical"):
-    if endx - startx <= 2 or endy - starty <= 2:
+    if endx - startx <= PASSAGE_WIDTH or endy - starty <= PASSAGE_WIDTH:
         return
     if orientation == "horizontal":
         middle = starty + (endy - starty) // 2
@@ -40,6 +49,7 @@ def divide(grid, startx, endx, starty, endy, orientation="vertical"):
     elif orientation == "vertical":
         middle = startx + (endx - startx) // 2
         grid.drawStraightLine(starty, middle, endy, middle)
+
         divide(grid, startx, middle-1, starty, endy, "horizontal")
         divide(grid, middle+1, endx, starty, endy, "horizontal")
 # Spot class
@@ -50,8 +60,8 @@ class Spot:
         self.row = row
         self.col = col
         self.is_wall = is_wall
-        self.x = row * SPOT_SIZE
-        self.y = col * SPOT_SIZE
+        self.x = col * SPOT_SIZE
+        self.y = row * SPOT_SIZE
 
     def draw(self, screen):
         color = (0, 0, 255) if self.is_wall else (255, 255, 255)
@@ -60,6 +70,9 @@ class Spot:
 
     def set_wall(self):
         self.is_wall = True
+
+    def __repr__(self):
+        return "{x}" if self.is_wall else "{ }"
 
 
 class Grid:
@@ -87,44 +100,68 @@ class Grid:
 
     def drawStraightLine(self, startrow, startcol, endrow, endcol):
         """
-        line must be horizontal or vertical
+        Draws a straight line on the grid. The line must be either horizontal or vertical.
         """
-        if startrow == endrow:
-            for i in range(int(endcol - startcol)):
-                self.grid[i][startrow].set_wall()
-        elif startcol == endcol:
-            for i in range(int(endrow - startrow)):
-                self.grid[startcol][i].set_wall()
+        # choose a random index to not make a wall
+        if startrow == endrow:  # Horizontal line
+            middle = startcol + (endcol - startcol) // 2
+            random_index = 0
+            while True:
+                random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for col in range(startcol, endcol + 1):
+                if col == random_index:
+                    continue
+                self.grid[startrow][col].set_wall()
+        elif startcol == endcol:  # Vertical line
+            middle = startcol + (endcol - startcol) // 2
+            random_index = 0
+            while True:
+                random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for row in range(startrow, endrow + 1):
+                if row == random_index:
+                    continue
+                self.grid[row][startcol].set_wall()
+
+    def __repr__(self):
+        return "\n".join(" ".join(str(spot) for spot in row) for row in self.grid)
 
 
 def main():
-    # Initialize Pygame
-    pg.init()
-
-    # Set up the screen with configurable dimensions
-    screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pg.display.set_caption('Pygame Project')
-
-    grid = Grid(SCREEN_WIDTH // SPOT_SIZE, SCREEN_HEIGHT // SPOT_SIZE)
-    grid.make_border_walls()
+    grid = Grid(GRID_WIDTH, GRID_HEIGHT)
+    # grid.make_border_walls()
+    print(grid)
     divide(grid, 0, grid.width-1, 0, grid.height-1)
+    print(grid)
     # Main game loop
-    running = True
-    while running:
-        # Fill the screen with the background color
-        screen.fill(BACKGROUND_COLOR)
+    if not DEBUG:
+        pg.init()
 
-        # Event loop
-        for event in pg.event.get():
-            # Check for QUIT event to exit the loop
-            if event.type == pg.QUIT:
-                running = False
-        grid.draw(screen)
-        # Update the display
-        pg.display.flip()
+        # Set up the screen with configurable dimensions
+        screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pg.display.set_caption('Pygame Project')
 
-    # Quit Pygame
-    pg.quit()
+        running = True
+        while running:
+            # Fill the screen with the background color
+            screen.fill(BACKGROUND_COLOR)
+
+            # Event loop
+            for event in pg.event.get():
+                # Check for QUIT event to exit the loop
+                if event.type == pg.QUIT:
+                    running = False
+            grid.draw(screen)
+            # Update the display
+            pg.display.flip()
+
+        # Quit Pygame
+        pg.quit()
 
 
 if __name__ == '__main__':
