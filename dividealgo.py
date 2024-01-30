@@ -1,45 +1,24 @@
 # Import Pygame
 import random
 import pygame as pg
+from enum import Enum
+
+from config import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR
+from config import SPOT_SIZE, GRID_WIDTH, GRID_HEIGHT
+from config import PASSAGE_WIDTH, DEBUG, SHOW_OUTLINES, MAKE_BOARDER_WALLS
+from config import SpotState
 
 
-# Constants for screen dimensions
-SCREEN_WIDTH = 1300
-SCREEN_HEIGHT = 1300
-BACKGROUND_COLOR = (3, 12, 23)  # White color
-# GRID_WIDTH = 100
-# GRID_HEIGHT = 100
-# SPOT_SIZE = SCREEN_HEIGHT // GRID_HEIGHT  # Size of each spot in pixels
+def divide(grid, startx=None, endx=None, starty=None, endy=None, orientation="vertical"):
 
-SPOT_SIZE = 100
-GRID_WIDTH = SCREEN_WIDTH // SPOT_SIZE
-GRID_HEIGHT = SCREEN_HEIGHT // SPOT_SIZE
-PASSAGE_WIDTH = 5
-DEBUG = False
-SHOW_OUTLINES = True
-MAKE_BOARDER_WALLS = True
-
-# divide(grid, startx, endx, starty, endy, orientation):
-#     if endx - startx <= 1 or endy - starty <= 1:
-#         return
-#     if orientation == "horizontal":
-#         use y
-#         middle = (endy - starty) / 2
-#         // draw line down middle
-#         // i'm not sure how to do this part.
-#         divide(grid, startx, endx, starty, middle -1, "vertical")
-#         divide(grid, startx, endx, middle, endy, "vertical")
-
-#     else if orientiation == "vertical"
-#         use x
-#         middle = (endx - startx) / 2
-#         // draw line down middle
-#         // i'm not sure how to do this part.
-#         divide(grid, startx, middle-1, starty, endy, "horizontal")
-#         divide(grid, middle, endx, starty, endy, "horizontal")
-
-
-def divide(grid, startx, endx, starty, endy, orientation="vertical"):
+    if startx is None:
+        startx = 0
+    if endx is None:
+        endx = grid.width - 1  # Assuming grid has a 'width' attribute
+    if starty is None:
+        starty = 0
+    if endy is None:
+        endy = grid.height - 1  # Assuming grid has a 'height' attribute
 
     if orientation == "horizontal" and endy - starty <= PASSAGE_WIDTH:
         return
@@ -58,22 +37,22 @@ def divide(grid, startx, endx, starty, endy, orientation="vertical"):
 
         divide(grid, startx, middle, starty, endy, "horizontal")
         divide(grid, middle+1, endx, starty, endy, "horizontal")
-# Spot class
 
 
 class Spot:
-    def __init__(self, row, col, is_wall=False):
+    def __init__(self, row=0, col=0, state=SpotState.EMPTY):
+
         self.row = row
         self.col = col
-        self.is_wall = is_wall
+        self.state = state
         self.x = col * SPOT_SIZE
         self.y = row * SPOT_SIZE
 
     def draw(self, screen):
-        color = (0, 0, 255) if self.is_wall else (255, 255, 255)
+        color = self.getColor()
         outline_thickness = 1
         outline_color = (0, 0, 0)
-        if self.is_wall and not SHOW_OUTLINES:
+        if self.state and not SHOW_OUTLINES:
             pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
 
         outline_thickness = 1  # Thickness of the outline
@@ -85,18 +64,27 @@ class Spot:
             # Draw the inner rectangle
             pg.draw.rect(screen, color, (self.x, self.y, SPOT_SIZE, SPOT_SIZE))
 
+    def __str__(self):
+        return f"row: {self.row}, col: {self.col}, state: {self.state}"
+
+    def getColor(self):
+        if self.state == SpotState.EMPTY:
+            return (255, 255, 255)
+        elif self.state == SpotState.WALL:
+            return (0, 0, 0)
+
     def set_wall(self):
-        self.is_wall = True
+        self.state = SpotState.WALL
 
     def __repr__(self):
-        return "{x}" if self.is_wall else "{ }"
+        return "{x}" if self.state == SpotState.WALL else "{ }"
 
 
 class Grid:
-    def __init__(self, width, height):
+    def __init__(self, width, height, spot_class=Spot):
         self.width = width
         self.height = height
-        self.grid = [[Spot(row, col) for col in range(width)]
+        self.grid = [[spot_class(row, col) for col in range(width)]
                      for row in range(height)]
 
     def draw(self, screen):
@@ -134,10 +122,30 @@ class Grid:
         """
         # choose a random index to not make a wall
         if startrow == endrow:  # Horizontal line
+            middle = startrow + (endrow - startrow) // 2
+            random_index = 0
+            while True:
+                random_index = startcol + 1
+                # random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for col in range(startcol, endcol + 1):
+                if col == random_index:
+                    continue
+                self.grid[startrow][col].set_wall()
+        elif startcol == endcol:  # Vertical line
             middle = startcol + (endcol - startcol) // 2
             random_index = 0
             while True:
-                random_index = random.randint(startrow, endrow)
+                random_index = startcol+1
+                # random_index = random.randint(startrow, endrow)
+                if random_index != middle:
+                    break
+
+            for row in range(startrow, endrow + 1):
+                if row == random_index:
+                    continue
                 if random_index != middle:
                     break
 
@@ -160,40 +168,3 @@ class Grid:
 
     def __repr__(self):
         return "\n".join(" ".join(str(spot) for spot in row) for row in self.grid)
-
-
-def main():
-    grid = Grid(GRID_WIDTH, GRID_HEIGHT)
-    if MAKE_BOARDER_WALLS:
-        grid.make_border_walls()
-    print(grid)
-    divide(grid, 0, grid.width-1, 0, grid.height-1)
-    print(grid)
-    # Main game loop
-    if not DEBUG:
-        pg.init()
-
-        # Set up the screen with configurable dimensions
-        screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pg.display.set_caption('Pygame Project')
-
-        running = True
-        while running:
-            # Fill the screen with the background color
-            screen.fill(BACKGROUND_COLOR)
-
-            # Event loop
-            for event in pg.event.get():
-                # Check for QUIT event to exit the loop
-                if event.type == pg.QUIT:
-                    running = False
-            grid.draw(screen)
-            # Update the display
-            pg.display.flip()
-
-        # Quit Pygame
-        pg.quit()
-
-
-if __name__ == '__main__':
-    main()
