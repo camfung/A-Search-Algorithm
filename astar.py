@@ -9,7 +9,7 @@ from config import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR
 from config import SPOT_SIZE, GRID_WIDTH, GRID_HEIGHT
 from config import PASSAGE_WIDTH, DEBUG, SHOW_OUTLINES, MAKE_BOARDER_WALLS
 from config import SpotState
-
+from config import EMPTY_COLOR, WALL_COLOR, PATH_COLOR, END_COLOR, START_COLOR
 # using the euclidian distance
 
 
@@ -63,17 +63,17 @@ class AdvancedSpot(Spot):
 
     def getColor(self):
         if self.state == SpotState.EMPTY:
-            return (255, 255, 255)
+            return EMPTY_COLOR
         elif self.state == SpotState.WALL:
-            return (0, 0, 0)
+            return WALL_COLOR
         elif self.state == SpotState.PATH:
-            return (0, 0, 255)
+            return PATH_COLOR
         elif self.state == SpotState.END:
-            return (255, 0, 0)
+            return END_COLOR
         elif self.state == SpotState.START:
-            return (0, 255, 0)
-
+            return START_COLOR
     # G setter and getter
+
     @property
     def g(self):
         return self._g
