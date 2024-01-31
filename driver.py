@@ -8,8 +8,9 @@ from astar import AStarGrid
 def main():
     now = datetime.datetime.now()
     grid = Grid(GRID_WIDTH, GRID_HEIGHT)
-    divide(grid)
-    grid = AStarGrid(existing_grid=grid)
+    divide(grid, 1, 1, grid.height - 2, grid.width - 2)
+    grid = AStarGrid(existing_grid=grid,
+                     start=(1, 1), end=(GRID_WIDTH-2, GRID_HEIGHT-2))
     if MAKE_BOARDER_WALLS:
         grid.make_border_walls()
     grid.a_star()
@@ -38,6 +39,7 @@ def main():
                 # Check for QUIT event to exit the loop
                 if event.type == pg.QUIT:
                     running = False
+
             grid.draw(screen)
             # Update the display
             pg.display.flip()

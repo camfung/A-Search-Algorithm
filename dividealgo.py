@@ -39,6 +39,33 @@ def divide(grid, startx=None, endx=None, starty=None, endy=None, orientation="ve
         divide(grid, middle+1, endx, starty, endy, "horizontal")
 
 
+def divide(grid, startrow, startcol, endrow, endcol):
+    if endrow - startrow < PASSAGE_WIDTH or endcol - startcol < PASSAGE_WIDTH:
+        return  # Termination condition
+
+    if random.choice([True, False]):  # Decide direction of division
+        # Vertical division
+        divide_col = random.randint(startcol + 1, endcol - 1)
+        grid.drawStraightLine(startrow, divide_col, endrow, divide_col)
+        # Create passage
+        grid.grid[random.randint(startrow, endrow)
+                  ][divide_col].state = SpotState.EMPTY
+
+        # Recursively divide the two new sections
+        divide(grid, startrow, startcol, endrow, divide_col)
+        divide(grid, startrow, divide_col, endrow, endcol)
+    else:
+        # Horizontal division
+        divide_row = random.randint(startrow + 1, endrow - 1)
+        grid.drawStraightLine(divide_row, startcol, divide_row, endcol)
+        grid.grid[divide_row][random.randint(
+            startcol, endcol)].state = SpotState.EMPTY  # Create passage
+
+        # Recursively divide the two new sections
+        divide(grid, startrow, startcol, divide_row, endcol)
+        divide(grid, divide_row, startcol, endrow, endcol)
+
+
 class Spot:
     def __init__(self, row=0, col=0, state=SpotState.EMPTY):
 
