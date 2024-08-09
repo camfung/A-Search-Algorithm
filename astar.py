@@ -5,30 +5,29 @@ from math import hypot
 import time
 
 
-def a_star():
+def a_star(grid):
+    end = grid[side_length-1][side_length-1]
+    start = grid[0][0]
+    o_set = [start]
+    c_set = []
     dist = 0
     while o_set:
-        pygame.display.flip()
-
-        # finding the index with the lowest f in the open set
-        # priority queue
         lowest = o_set[0]
-        greatest_y = o_set[0]
         for i in o_set:
             if i.f < lowest.f:
                 lowest = i
 
-
-
         current = lowest
         if current == end:
-            print("done")
-            break
+            path = []
+            while current.previous is not None:
+                path.append(current)
+                current = current.previous
+            return path
 
         o_set.remove(current)
         c_set.append(current)
 
-        # checking the neighbors of the current
         neighbors = current.neighbors
         for neighbor in neighbors:
             if neighbor not in c_set and not neighbor.is_wall:
@@ -42,8 +41,6 @@ def a_star():
                     o_set.append(neighbor)
                     neighbor.previous = current
 
-
-
     # draw the grid
     for i in range(0, side_length):
         for j in range(0, side_length):
@@ -54,11 +51,11 @@ def a_star():
             # drawing the open set
             elif grid[j][i] in o_set:
                 pygame.draw.rect(wn, (0, 255, 0), pygame.Rect(grid[j][i].y_cord,
-                                                            grid[j][i].x_cord, 1, 1))
+                                                              grid[j][i].x_cord, 1, 1))
             # drawing the closed set
             elif grid[j][i] in c_set:
                 pygame.draw.rect(wn, (255, 0, 0), pygame.Rect(grid[j][i].y_cord,
-                                                            grid[j][i].x_cord, 1, 1))
+                                                              grid[j][i].x_cord, 1, 1))
 
     temp = end
     dist = 0
@@ -70,11 +67,11 @@ def a_star():
 
     for i in path:
         pygame.draw.rect(wn, (0, 0, 255), pygame.Rect(i.y_cord,
-                                                    i.x_cord, 1, 1))
+                                                      i.x_cord, 1, 1))
 
     # making the end square blue
     pygame.draw.rect(wn, (0, 0, 255), pygame.Rect(end.y_cord,
-                                                end.x_cord, 1, 1))
+                                                  end.x_cord, 1, 1))
 
     time.sleep(0)
     print(dist)
@@ -105,6 +102,8 @@ class Spot:
         self.is_wall = False
         self.neighbors = []
         self.previous = None
+
+
 pygame.init()
 pixels = 1000
 wn = pygame.display.set_mode((pixels, pixels))
@@ -129,7 +128,7 @@ for i in range(0, side_length):
         grid[i].append(Spot(i, j))
         pygame.draw.rect(wn, (0, 0, 0),
                          pygame.Rect(grid[i][j].y_cord, grid[i][j].x_cord, spot_size, spot_size), 1)
-        num = random.randint(0,prob)
+        num = random.randint(0, prob)
         if num == 0 and i != side_length - 1 and j != side_length - 1:
             grid[i][j].is_wall = True
 
@@ -144,9 +143,6 @@ for i in range(0, side_length):
             grid[j][i].neighbors.append(grid[j + 1][i])
         if 0 < j <= side_length - 1:
             grid[j][i].neighbors.append(grid[j - 1][i])
-
-
-
 
 
 end = grid[side_length-1][side_length-1]
@@ -164,11 +160,10 @@ while True:
             if event.key == pygame.K_SPACE:
                 a_star()
 
-
         # dropping piece
         if pygame.mouse.get_pressed(3)[0]:
             pygame.draw.rect(wn, (0, 0, 0), pygame.Rect(get_grid_x() * spot_size + 1,
-                                                          get_grid_y() * spot_size + 1, spot_size - 2, spot_size - 2))
+                                                        get_grid_y() * spot_size + 1, spot_size - 2, spot_size - 2))
             grid[get_grid_y()][get_grid_x()].is_wall = True
         if event.type == pygame.constants.MOUSEBUTTONDOWN:
             if event.button == 3:
