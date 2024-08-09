@@ -41,22 +41,6 @@ def a_star(grid):
                     o_set.append(neighbor)
                     neighbor.previous = current
 
-    # draw the grid
-    for i in range(0, side_length):
-        for j in range(0, side_length):
-            # drawing walls
-            if grid[j][i].is_wall:
-                pygame.draw.rect(wn, (0, 0, 0), pygame.Rect(grid[j][i].y_cord,
-                                                            grid[j][i].x_cord, 1, 1))
-            # drawing the open set
-            elif grid[j][i] in o_set:
-                pygame.draw.rect(wn, (0, 255, 0), pygame.Rect(grid[j][i].y_cord,
-                                                              grid[j][i].x_cord, 1, 1))
-            # drawing the closed set
-            elif grid[j][i] in c_set:
-                pygame.draw.rect(wn, (255, 0, 0), pygame.Rect(grid[j][i].y_cord,
-                                                              grid[j][i].x_cord, 1, 1))
-
     temp = end
     dist = 0
     path = []

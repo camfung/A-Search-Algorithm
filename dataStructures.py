@@ -16,7 +16,7 @@ class Spot:
     def __repr__(self):
         if self.has_agent:
             return "{A}"
-        return "{x}" if self.is_wall else "{ }"
+        return f"{{{self.row} , {self.col}}}" if self.is_wall else "{ }"
 
 
 class Grid:
@@ -69,7 +69,27 @@ class AStarSpot(Spot):
             super().__init__(spot.row, spot.col, spot.is_wall)
         else:
             super().__init__(row, col, is_wall)
-        self.g, self.h, self.f = 0, 0, 0
+        self.g, self.h, self.f = 0, 0, 100000000
+        self.neighbors = []
+        self.previous = None
+
+    def get_neighbors(self, grid):
+        self.neighbors = []
+        directions = [
+            (0, -1),
+            (0, 1),
+            (-1, 0),
+            (1, 0)
+        ]
+
+        for direction in directions:
+            neighbor_row = self.row + direction[0]
+            neighbor_col = self.col + direction[1]
+
+            if 0 <= neighbor_row < grid.height and 0 <= neighbor_col < grid.width:
+                neighbor = grid[neighbor_row][neighbor_col]
+                if not neighbor.is_wall:
+                    self.neighbors.append(neighbor)
 
 
 class AStarGrid(Grid):
@@ -81,7 +101,9 @@ class AStarGrid(Grid):
             super().__init__(grid.width, grid.height, grid.border_walls)
             self.grid = [[AStarSpot(spot=spot) for spot in col]
                          for col in grid.grid]
-            print(self.grid)
+            for col in self.grid:
+                for spot in col:
+                    spot.get_neighbors(self)
 
 
 class Agent:
@@ -96,6 +118,46 @@ class Agent:
         row, col = self.route_planned.pop(0)
         self.row, self.col = row, col
         self.route_travelled.append((row, col))
+
+    def get_h(self, s, e):
+        return abs(e.col - s.col) + abs(e.row - s.row)
+
+    def astar(self, grid: Grid):
+        a_grid = AStarGrid(grid=grid)
+        end = a_grid.grid[a_grid.width-2][a_grid.height-2]
+        start = a_grid.grid[self.row][self.col]
+        o_set = [start]
+        c_set = []
+        while o_set:
+            lowest = o_set[0]
+            for i in o_set:
+                if i.f < lowest.f:
+                    lowest = i
+
+            current = lowest
+            if current == end:
+                path = []
+                while current.previous is not None:
+                    path.append((current.row, current.col))
+                    current = current.previous
+                path.append((current.row, current.col))
+                return path
+
+            o_set.remove(current)
+            c_set.append(current)
+
+            neighbors = current.neighbors
+            for neighbor in neighbors:
+                if neighbor not in c_set and not neighbor.is_wall:
+                    tempg = current.g + 1
+                    if tempg < neighbor.g:
+                        neighbor.g = tempg
+                        neighbor.previous = current
+                    neighbor.h = self.get_h(neighbor, end)
+                    neighbor.f = neighbor.g + neighbor.h
+                    if neighbor not in o_set:
+                        o_set.append(neighbor)
+                        neighbor.previous = current
 
     def __str__(self):
         return (
@@ -114,5 +176,7 @@ class AgentsHandler:
             try:
                 agent.step()
             except Exception as e:
-                agent.route_planned = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (
-                    9, 9), (9, 9), (9, 8), (9, 7), (9, 6), (9, 5), (9, 4), (9, 3), (9, 2), (9, 1), (9, 0), (9, 0), (8, 0), (7, 0), (6, 0), (5, 0), (4, 0), (3, 0), (2, 0), (1, 0), (0, 0)]
+                pass
+                # print("agent reached the end")
+                # agent.route_planned = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (
+                #     9, 9), (9, 9), (9, 8), (9, 7), (9, 6), (9, 5), (9, 4), (9, 3), (9, 2), (9, 1), (9, 0), (9, 0), (8, 0), (7, 0), (6, 0), (5, 0), (4, 0), (3, 0), (2, 0), (1, 0), (0, 0)]

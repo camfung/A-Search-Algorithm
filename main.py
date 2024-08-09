@@ -14,7 +14,7 @@ class ShowSim:
     update_agents_event = pygame.USEREVENT
     clock = pygame.time.Clock()
 
-    def __init__(self, grid: Grid, agents: List[Agent], cell_size=10, outline_width=1):
+    def __init__(self, grid: Grid, agents: List[Agent], cell_size=20, outline_width=1):
         self.grid = grid
         self.agents = agents
         self.cell_size = cell_size
@@ -23,6 +23,7 @@ class ShowSim:
         self.height = grid.height * cell_size
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.agents_handler = AgentsHandler(agents)
+        self.start = False
 
         pygame.display.set_caption("Grid Display")
         pygame.time.set_timer(ShowSim.update_agents_event, 50)
@@ -65,8 +66,11 @@ class ShowSim:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == self.update_agents_event:
+                if event.type == self.update_agents_event and self.start:
                     self.agents_handler.update_agents()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.start = True
 
             self.draw_grid()
             self.draw_agents()
@@ -81,7 +85,7 @@ pygame.quit()
 # Example usage:
 if __name__ == "__main__":
     # Create a sample grid
-    grid = make_maze_recursion(100, 100)
+    grid = make_maze_recursion(60, 60)
 
     pattern = []
     directions = (-1, 1)
@@ -98,9 +102,12 @@ if __name__ == "__main__":
 
     for i in range(9, -1, -1):
         pattern.append((i, 0))
-    print(pattern)
 
-    agent = Agent(5, 5, route_planned=pattern)
+    agent = Agent(1, 1)
+
+    pattern = agent.astar(grid)
+    agent.route_planned = pattern
+    print("pattern: ", pattern)
 
     # Create and run the ShowGrid
     show_grid = ShowSim(grid, [agent])
