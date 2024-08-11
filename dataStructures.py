@@ -20,7 +20,7 @@ class Spot:
 
 
 class Grid:
-    def __init__(self, width, height, border_walls=False):
+    def __init__(self, width, height, border_walls=False, fill=False):
         self.width = width
         self.height = height
         self.grid = [[Spot(row, col) for col in range(width)]
@@ -28,6 +28,8 @@ class Grid:
         self.border_walls = border_walls
 
         self.make_border_walls() if border_walls else None
+        if fill:
+            self.fill_grid()
 
     def make_border_walls(self):
         # Set the top and bottom rows as walls
@@ -39,6 +41,11 @@ class Grid:
         for row in range(self.height):
             self.grid[row][0].set_wall()
             self.grid[row][self.width - 1].set_wall()
+
+    def fill_grid(self):
+        for col in self.grid:
+            for spot in col:
+                spot.is_wall = True
 
     def drawStraightLine(self, startrow, startcol, direction):
         """
@@ -126,7 +133,14 @@ class Agent:
     def desination_col(self):
         return self.destination[1]
 
-    def step(self):
+    def step(self, grid=None):
+        if grid is not None:
+            if self.route_planned[len(self.route_planned-1)] != self.desination:
+                self.compute_planned_route(grid)
+            else:
+                # idk if i want this here or not yet
+                raise Exception("passed grid to step without new destinaiton")
+
         if len(self.route_planned) < 1:
             raise Exception("reached the end of the path")
         row, col = self.route_planned.pop(0)

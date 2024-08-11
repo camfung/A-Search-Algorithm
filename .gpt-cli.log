@@ -1,0 +1,26 @@
+2024-08-11 13:44:58,869 - gptcli - INFO - Starting a new chat session. Assistant config: {'messages': [{'role': 'system', 'content': "You are a helpful assistant who is an expert in software development. You are helping a user who is a software developer. Your responses are short and concise. You include code snippets when appropriate. Code snippets are formatted using Markdown with a correct language tag. User's `uname`: uname_result(system='Linux', node='Cameron-xps', release='5.15.0-1062-intel-iotg', version='#68-Ubuntu SMP Wed Jul 17 14:13:13 UTC 2024', machine='x86_64')"}, {'role': 'user', 'content': 'Your responses must be short and concise. Do not include explanations unless asked.'}, {'role': 'assistant', 'content': 'Understood.'}]}
+2024-08-11 13:44:58,878 - gptcli-session - INFO - Chat started
+2024-08-11 13:45:25,229 - gptcli-session - INFO - user: in vim is there a way to check what marks ive set? 
+2024-08-11 13:45:26,041 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-08-11 13:45:26,209 - gptcli-session - INFO - assistant: You can check the marks you've set in Vim by using the `:marks` command.
+2024-08-11 13:45:26,209 - gptcli-price - INFO - Token usage 183
+2024-08-11 13:45:26,209 - gptcli-price - INFO - Message price (model: gpt-3.5-turbo): $0.000
+2024-08-11 13:45:26,209 - gptcli-price - INFO - Current spend: $0.000
+2024-08-11 13:45:53,804 - gptcli-session - INFO - user: how do i clear marks for a file in vim 
+2024-08-11 13:45:54,539 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-08-11 13:45:54,874 - gptcli-session - INFO - assistant: You can clear marks for a file in Vim using the command `:delmarks`. To clear a specific mark, you can use `:delmarks a` to clear mark 'a'.
+2024-08-11 13:45:54,874 - gptcli-price - INFO - Token usage 240
+2024-08-11 13:45:54,874 - gptcli-price - INFO - Message price (model: gpt-3.5-turbo): $0.000
+2024-08-11 13:45:54,874 - gptcli-price - INFO - Current spend: $0.000
+2024-08-11 15:09:58,978 - gptcli-session - INFO - user: what is the number for right click in pygame 
+2024-08-11 15:09:59,838 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-08-11 15:10:00,006 - gptcli-session - INFO - assistant: In Pygame, the number for the right mouse button is `3`.
+2024-08-11 15:10:00,007 - gptcli-price - INFO - Token usage 273
+2024-08-11 15:10:00,007 - gptcli-price - INFO - Message price (model: gpt-3.5-turbo): $0.000
+2024-08-11 15:10:00,007 - gptcli-price - INFO - Current spend: $0.000
+2024-08-11 15:11:05,118 - gptcli-session - INFO - user: is there a mouse button for the mouse held event 
+2024-08-11 15:11:05,686 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-08-11 15:11:05,967 - gptcli-session - INFO - assistant: In Pygame, you can check for a mouse button held event by checking the `MOUSEBUTTONDOWN` event and then continuously checking if the mouse button is still pressed.
+2024-08-11 15:11:05,967 - gptcli-price - INFO - Token usage 326
+2024-08-11 15:11:05,967 - gptcli-price - INFO - Message price (model: gpt-3.5-turbo): $0.000
+2024-08-11 15:11:05,967 - gptcli-price - INFO - Current spend: $0.001
