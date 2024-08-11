@@ -176,7 +176,7 @@ class Agent:
         raise NoRouteFoundError()
 
     def compute_planned_route(self, grid):
-        self.path = self.astar(grid)
+        self.route_planned = self.astar(grid)
 
     def __str__(self):
         return (
