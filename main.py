@@ -14,16 +14,16 @@ class ShowSim:
     update_agents_event = pygame.USEREVENT
     clock = pygame.time.Clock()
 
-    def __init__(self, grid: Grid, agents: List[Agent], cell_size=20, outline_width=1):
+    def __init__(self, grid: Grid, agents_handler: AgentsHandler, cell_size=20, outline_width=1):
         self.grid = grid
-        self.agents = agents
         self.cell_size = cell_size
         self.outline_width = outline_width
         self.width = grid.width * cell_size
         self.height = grid.height * cell_size
         self.screen = pygame.display.set_mode((self.width, self.height))
-        self.agents_handler = AgentsHandler(agents)
+        self.agents_handler = agents_handler
         self.start = False
+        self.mouse_held = False
 
         pygame.display.set_caption("Grid Display")
         pygame.time.set_timer(ShowSim.update_agents_event, 50)
@@ -48,17 +48,22 @@ class ShowSim:
                 )
 
     def draw_agents(self):
-        for agent in self.agents:
+        for agent in self.agents_handler.agents:
             row = agent.row
             col = agent.col
             rect_x = col * self.cell_size
             rect_y = row * self.cell_size
-            color = (255, 0, 0)
             pygame.draw.rect(
-                self.screen, color,
+                self.screen, agent.color,
                 (rect_x, rect_y, self.cell_size, self.cell_size),
                 0
             )
+
+    def get_grid_position(self, pos):
+        x, y = pos
+        col = x // self.cell_size
+        row = y // self.cell_size
+        return row, col
 
     def run(self):
         running = True
@@ -66,11 +71,28 @@ class ShowSim:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-                if event.type == self.update_agents_event and self.start:
+                elif event.type == self.update_agents_event and self.start:
                     self.agents_handler.update_agents()
-                if event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.start = True
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        self.mouse_held = True
+                        pos = pygame.mouse.get_pos()
+                        row, col = self.get_grid_position(pos)
+                        print(f"Mouse Clicked at Row: {row}, Column: {col}")
+
+                elif event.type == pygame.MOUSEMOTION:
+                    if self.mouse_held:
+                        pos = pygame.mouse.get_pos()
+                        row, col = self.get_grid_position(pos)
+                        print(
+                            f"Mouse Held and Moved to Row: {row}, Column: {col}")
+
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        self.mouse_held = False
 
             self.draw_grid()
             self.draw_agents()
@@ -84,31 +106,18 @@ pygame.quit()
 
 # Example usage:
 if __name__ == "__main__":
+    grid_width, grid_height = 60, 60
     # Create a sample grid
-    grid = make_maze_recursion(60, 60)
+    grid = make_maze_recursion(grid_width, grid_height)
 
-    pattern = []
-    directions = (-1, 1)
-    x, y = 0, 0
-    pattern = []
-    for i in range(10):
-        pattern.append((0, i))
-
-    for i in range(10):
-        pattern.append((i, 9))
-
-    for i in range(9, -1, -1):
-        pattern.append((9, i))
-
-    for i in range(9, -1, -1):
-        pattern.append((i, 0))
-
-    agent = Agent(1, 1)
+    agent = Agent(1, 1, grid_width-2, grid_height-2)
+    agent2 = Agent(58, 1, 1, 58)
 
     pattern = agent.astar(grid)
     agent.route_planned = pattern
     print("pattern: ", pattern)
+    agents_handler = AgentsHandler(agents=[agent, agent2], grid=grid)
 
     # Create and run the ShowGrid
-    show_grid = ShowSim(grid, [agent])
+    show_grid = ShowSim(grid, agents_handler)
     show_grid.run()

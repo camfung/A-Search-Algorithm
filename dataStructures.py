@@ -107,10 +107,24 @@ class AStarGrid(Grid):
 
 
 class Agent:
-    def __init__(self, row, col, route_planned=[]) -> None:
+    def __init__(self, row, col, dest_row=0, dest_col=0, route_planned=[]) -> None:
         self.row, self.col = row, col
         self.route_planned = route_planned
         self.route_travelled = []
+        self.destination = (dest_row, dest_col)
+        self.color = (255, 0, 0)
+
+    @property
+    def desination(self):
+        return self.destination
+
+    @property
+    def desination_row(self):
+        return self.destination[0]
+
+    @property
+    def desination_col(self):
+        return self.destination[1]
 
     def step(self):
         if len(self.route_planned) < 1:
@@ -124,7 +138,7 @@ class Agent:
 
     def astar(self, grid: Grid):
         a_grid = AStarGrid(grid=grid)
-        end = a_grid.grid[a_grid.width-2][a_grid.height-2]
+        end = a_grid.grid[self.desination_row][self.desination_col]
         start = a_grid.grid[self.row][self.col]
         o_set = [start]
         c_set = []
@@ -141,6 +155,7 @@ class Agent:
                     path.append((current.row, current.col))
                     current = current.previous
                 path.append((current.row, current.col))
+                path.reverse()
                 return path
 
             o_set.remove(current)
@@ -158,6 +173,10 @@ class Agent:
                     if neighbor not in o_set:
                         o_set.append(neighbor)
                         neighbor.previous = current
+        raise NoRouteFoundError()
+
+    def compute_planned_route(self, grid):
+        self.path = self.astar(grid)
 
     def __str__(self):
         return (
@@ -168,8 +187,9 @@ class Agent:
 
 
 class AgentsHandler:
-    def __init__(self, agents) -> None:
+    def __init__(self, agents: List[Agent], grid: Grid) -> None:
         self.agents: List[Agent] = agents
+        self.grid: Grid = grid
 
     def update_agents(self):
         for agent in self.agents:
@@ -180,3 +200,13 @@ class AgentsHandler:
                 # print("agent reached the end")
                 # agent.route_planned = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (
                 #     9, 9), (9, 9), (9, 8), (9, 7), (9, 6), (9, 5), (9, 4), (9, 3), (9, 2), (9, 1), (9, 0), (9, 0), (8, 0), (7, 0), (6, 0), (5, 0), (4, 0), (3, 0), (2, 0), (1, 0), (0, 0)]
+
+    def calculate_agents_routes(self):
+        for agent in self.agents:
+            agent.compute_planned_route(self.grid)
+
+
+class NoRouteFoundError(Exception):
+    def __init__(self, message="no Route Found") -> None:
+        self.message = message
+        super().__init__(message)
