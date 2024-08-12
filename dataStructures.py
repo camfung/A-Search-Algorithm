@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 import random
 from typing import List
@@ -10,21 +11,26 @@ class Spot:
         self.is_wall = is_wall
         self.has_agent = False
 
+    @property
+    def position(self):
+        return (self.row, self.col)
+
     def set_wall(self):
         self.is_wall = True
 
     def __repr__(self):
-        if self.has_agent:
-            return "{A}"
-        return f"{{{self.row} , {self.col}}}" if self.is_wall else "{ }"
+        return f"{{{self.row}, {self.col}}}"
 
 
 class Grid:
-    def __init__(self, width, height, border_walls=False, fill=False):
+    def __init__(self, width=None, height=None, border_walls=False, fill=False, file_path=None):
         self.width = width
         self.height = height
-        self.grid = [[Spot(row, col) for col in range(width)]
-                     for row in range(height)]
+        if file_path:
+            self.import_grid(file_path)
+        else:
+            self.grid = [[Spot(row, col) for col in range(width)]
+                         for row in range(height)]
         self.border_walls = border_walls
 
         self.make_border_walls() if border_walls else None
@@ -58,6 +64,43 @@ class Grid:
             for row in range(self.height):
                 self.grid[row][startcol].set_wall()
 
+    def export(self):
+        walls = []
+        for col in self.grid:
+            for spot in col:
+                if spot.is_wall:
+                    walls.append((spot.row, spot.col))
+
+        with open(str(datetime.datetime.now()), "w") as file:
+            file.write(f"{self.width}, {self.height}\n")
+            file.write(str(walls))
+
+    def read_file_into_memory(self, filename):
+        with open(filename, 'r') as file:
+            # Read the first line and convert it into a tuple of integers
+            grid_size = tuple(map(int, file.readline().strip().split(',')))
+
+            # Read the remaining lines and evaluate the string as a list of tuples
+            coordinates = eval(file.readline().strip())
+
+        return grid_size, tuple(coordinates)
+
+    def import_grid(self, file_path: str):
+        grid_size, walls = self.read_file_into_memory(file_path)
+        walls_dict = {coord: True for coord in walls}
+
+        self.grid = []
+
+        for row in range(grid_size[1]):
+            grid_row = []
+            for col in range(grid_size[0]):
+                is_wall = walls_dict.get((row, col), False)
+                spot = Spot(row, col, is_wall=is_wall)
+                grid_row.append(spot)
+            self.grid.append(grid_row)
+        self.width = grid_size[0]
+        self.height = grid_size[1]
+
     def __getitem__(self, index):
         return self.grid[index]
 
@@ -71,14 +114,14 @@ class Direction(Enum):
 
 
 class AStarSpot(Spot):
-    def __init__(self, row: int = None, col: int = None, is_wall: bool = False, spot: Spot = None):
+    def __init__(self, row: int = None, col: int = None, is_wall: bool = False, spot: Spot = None, previous=None):
         if spot is not None:
             super().__init__(spot.row, spot.col, spot.is_wall)
         else:
             super().__init__(row, col, is_wall)
-        self.g, self.h, self.f = 0, 0, 100000000
+        self.g, self.h, self.f = 100000000, 0, 100000000
         self.neighbors = []
-        self.previous = None
+        self.previous = previous
 
     def get_neighbors(self, grid):
         self.neighbors = []
@@ -118,12 +161,12 @@ class Agent:
         self.row, self.col = row, col
         self.route_planned = route_planned
         self.route_travelled = []
-        self.destination = (dest_row, dest_col)
+        self._destination = (dest_row, dest_col)
         self.color = (255, 0, 0)
 
     @property
-    def desination(self):
-        return self.destination
+    def destination(self):
+        return self._destination
 
     @property
     def desination_row(self):
@@ -133,13 +176,13 @@ class Agent:
     def desination_col(self):
         return self.destination[1]
 
-    def step(self, grid=None):
+    def step(self, grid=None, new_desination=None):
         if grid is not None:
-            if self.route_planned[len(self.route_planned-1)] != self.desination:
+            if self.route_planned[len(self.route_planned)-1] != self.destination:
                 self.compute_planned_route(grid)
-            else:
-                # idk if i want this here or not yet
-                raise Exception("passed grid to step without new destinaiton")
+            elif new_desination is not None:
+                self.destination = new_desination
+                self.compute_planned_route(grid=grid)
 
         if len(self.route_planned) < 1:
             raise Exception("reached the end of the path")
@@ -154,13 +197,16 @@ class Agent:
         a_grid = AStarGrid(grid=grid)
         end = a_grid.grid[self.desination_row][self.desination_col]
         start = a_grid.grid[self.row][self.col]
+        start.g = 0
         o_set = [start]
         c_set = []
         while o_set:
             lowest = o_set[0]
-            for i in o_set:
-                if i.f < lowest.f:
-                    lowest = i
+            for spot in o_set:
+                if spot.f < lowest.f:
+                    lowest = spot
+                elif spot.f == lowest.f and spot.h < lowest.h:
+                    lowest = spot
 
             current = lowest
             if current == end:
@@ -176,6 +222,7 @@ class Agent:
             c_set.append(current)
 
             neighbors = current.neighbors
+
             for neighbor in neighbors:
                 if neighbor not in c_set and not neighbor.is_wall:
                     tempg = current.g + 1
@@ -206,14 +253,11 @@ class AgentsHandler:
         self.grid: Grid = grid
 
     def update_agents(self):
-        for agent in self.agents:
+        for index, agent in enumerate(self.agents):
             try:
-                agent.step()
+                agent.step(self.grid)
             except Exception as e:
                 pass
-                # print("agent reached the end")
-                # agent.route_planned = [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8), (0, 9), (0, 9), (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (
-                #     9, 9), (9, 9), (9, 8), (9, 7), (9, 6), (9, 5), (9, 4), (9, 3), (9, 2), (9, 1), (9, 0), (9, 0), (8, 0), (7, 0), (6, 0), (5, 0), (4, 0), (3, 0), (2, 0), (1, 0), (0, 0)]
 
     def calculate_agents_routes(self):
         for agent in self.agents:
