@@ -12,7 +12,7 @@ async def connect():
 
 # Event handler for receiving simulation updates
 @sio.event
-async def simulation_update(data):
+async def update(data):
     print("Simulation update:", data)
 
 
@@ -24,7 +24,7 @@ async def disconnect():
 
 async def main():
     # Connect to the server
-    await sio.connect("http://localhost:8080")  # Update with your server's URL and port
+    await sio.connect("http://localhost:5000")  # Update with your server's URL and port
 
     # Keep the client running
     await sio.wait()

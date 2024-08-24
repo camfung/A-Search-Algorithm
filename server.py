@@ -19,6 +19,7 @@ agents = [
 
 agents_handler = AgentsHandler(agents=agents, grid=grid)
 sim = Sim(grid, agents_handler)
+sim.agents_handler.calculate_agents_routes()
 
 
 # Simulation logic
