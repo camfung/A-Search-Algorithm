@@ -67,12 +67,16 @@ class Grid:
             for row in range(self.height):
                 self.grid[row][startcol].set_wall()
 
-    def export(self):
+    def get_walls(self):
         walls = []
         for col in self.grid:
             for spot in col:
                 if spot.is_wall:
                     walls.append((spot.row, spot.col))
+        return walls
+
+    def export(self):
+        walls = self.get_walls()
 
         with open(str(datetime.datetime.now()), "w") as file:
             file.write(f"{self.width}, {self.height}\n")
@@ -176,6 +180,15 @@ class Agent:
         self.color = (255, 0, 0)
         self.id = Agent._id_counter
         Agent._id_counter += 1
+
+    @property
+    def pos(self):
+        return (self.row, self.col)
+
+    @pos.setter
+    def pos(self, value):
+        self.row = value[0]
+        self.col = value[1]
 
     @property
     def destination(self):

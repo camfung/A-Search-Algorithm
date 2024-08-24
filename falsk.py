@@ -8,11 +8,12 @@ from flask import Flask
 
 
 grid_width, grid_height = 10, 10
-grid = Grid(width=10, height=10)
-# grid = make_maze_recursion(grid_width, grid_height)
+# grid = Grid(width=10, height=10)
+grid = make_maze_recursion(grid_width, grid_height)
+print(grid.get_walls())
 
 
-agents = [LoopingAgent(row=1, col=1, dest_row=9, dest_col=9)]
+agents = [LoopingAgent(row=1, col=1, dest_row=8, dest_col=8)]
 
 agents_handler = AgentsHandler(agents=agents, grid=grid)
 sim = Sim(grid, agents_handler)
@@ -41,6 +42,7 @@ app.wsgi_app = socketio.WSGIApp(sio, app.wsgi_app)
 @sio.event
 def connect(sid, environ):
     print("Client connected:", sid)
+    sio.emit("onConnect", grid.get_walls())
 
 
 @sio.event
