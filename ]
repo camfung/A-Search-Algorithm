@@ -1,5 +1,4 @@
 import datetime
-import copy
 from enum import Enum
 from typing import List
 
@@ -311,12 +310,12 @@ class LoopingAgent(Agent):
             pass
 
         if len(self.route_planned) < 1:
-            self.destination = self.route_travelled[0]
             self.route_travelled.reverse()
-            self.route_planned = [copy.deepcopy(cord) for cord in self.route_travelled]
-            self.route_travelled.clear()  # Clear travelled route
+            self.route_planned = self.route_travelled
+            self.route_travelled = []
 
-        if self.route_planned:
-            row, col = self.route_planned.pop(0)
-            self.row, self.col = row, col
-            self.route_travelled.append((row, col))
+        row, col = self.route_planned.pop(0)
+        self.row, self.col = row, col
+        self.route_travelled.append((row, col))
+        print("route planned:", self.route_planned)
+        print("route travelled:", self.route_travelled)
