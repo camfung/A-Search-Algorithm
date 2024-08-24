@@ -314,7 +314,7 @@ class LoopingAgent(Agent):
             self.destination = self.route_travelled[0]
             self.route_travelled.reverse()
             self.route_planned = [copy.deepcopy(cord) for cord in self.route_travelled]
-            self.route_travelled.clear()  # Clear travelled route
+            self.route_travelled.clear()
 
         if self.route_planned:
             row, col = self.route_planned.pop(0)

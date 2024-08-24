@@ -1,4 +1,4 @@
-from dataStructures import Grid, Agent, AgentsHandler
+from dataStructures import Grid, Agent, AgentsHandler, LoopingAgent
 from MakeMaze import make_maze_recursion
 
 
@@ -49,10 +49,8 @@ class Sim:
             for col in range(start[1], end[1]):
                 grid[row][col].is_wall = False
 
-    def run(self):
-        running = True
-        while running:
-            self.agents_handler.update_agents()
+    def step(self):
+        self.agents_handler.update_agents()
 
     def set_agent_dest(self, agent_id: int = -1, pos=(-1, -1)):
         if agent_id < 0:
@@ -68,12 +66,11 @@ class Sim:
             raise ValueError("invalid position")
         elif pos[1] < 0 or pos[1] > self.grid.width:
             raise ValueError("invalid position")
-
         self.agents_handler.update_agent_dest(agent_id, pos)
 
 
 if __name__ == "__main__":
-    grid_width, grid_height = 100, 100
+    grid_width, grid_height = 10, 10
     # 340, 130
     grid = make_maze_recursion(grid_width, grid_height)
     # grid = Grid(width=grid_width, height=grid_height,
@@ -81,7 +78,7 @@ if __name__ == "__main__":
     # grid = Grid(file_path="./test.txt")
 
     agents = [
-        Agent(1, 1, grid_height - 2, grid_width - 2),
+        LoopingAgent(1, 1, grid_height - 2, grid_width - 2),
         # Agent(1, grid_width-2, grid_height-2, 1),
         # Agent(grid_height-2, 1, 1, grid_width-2),
         # Agent(grid_height-2, grid_width-2, 1, 1)
@@ -89,5 +86,5 @@ if __name__ == "__main__":
 
     agents_handler = AgentsHandler(agents=agents, grid=grid)
 
-    show_grid = Sim(grid, agents_handler)
-    show_grid.run()
+    sim = Sim(grid, agents_handler)
+    sim.run()
