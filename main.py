@@ -1,7 +1,5 @@
-import datetime
-from dataStructures import Grid, Agent, Spot, AgentsHandler
+from dataStructures import Grid, Agent, Spot, AgentsHandler, LoopingAgent
 import pygame
-import random
 from typing import List
 from MakeMaze import make_maze_recursion
 
@@ -15,7 +13,14 @@ class ShowSim:
     update_agents_event = pygame.USEREVENT
     clock = pygame.time.Clock()
 
-    def __init__(self, grid: Grid, agents_handler: AgentsHandler, cell_size=10, outline_width=1, update_speed=50):
+    def __init__(
+        self,
+        grid: Grid,
+        agents_handler: AgentsHandler,
+        cell_size=10,
+        outline_width=1,
+        update_speed=50,
+    ):
         self.grid = grid
         self.cell_size = cell_size
         self.outline_width = outline_width
@@ -43,13 +48,13 @@ class ShowSim:
                 rect_y = row * self.cell_size
                 color = (0, 0, 255) if spot.is_wall else (255, 255, 255)
                 pygame.draw.rect(
-                    self.screen, color,
-                    (rect_x, rect_y, self.cell_size, self.cell_size)
+                    self.screen, color, (rect_x, rect_y, self.cell_size, self.cell_size)
                 )
                 pygame.draw.rect(
-                    self.screen, (0, 0, 0),
+                    self.screen,
+                    (0, 0, 0),
                     (rect_x, rect_y, self.cell_size, self.cell_size),
-                    self.outline_width
+                    self.outline_width,
                 )
 
     def draw_path(self, path, color=(255, 0, 0), line_width=3):
@@ -61,15 +66,20 @@ class ShowSim:
         :param line_width: The width of the line.
         """
         # Convert grid coordinates to pixel coordinates
-        pixel_path = [(col * self.cell_size + self.cell_size // 2,
-                       row * self.cell_size + self.cell_size // 2)
-                      for row, col in path]
+        pixel_path = [
+            (
+                col * self.cell_size + self.cell_size // 2,
+                row * self.cell_size + self.cell_size // 2,
+            )
+            for row, col in path
+        ]
 
         # Draw lines between each consecutive node
         if len(pixel_path) > 1:
             for i in range(len(pixel_path) - 1):
-                pygame.draw.line(self.screen, color,
-                                 pixel_path[i], pixel_path[i + 1], line_width)
+                pygame.draw.line(
+                    self.screen, color, pixel_path[i], pixel_path[i + 1], line_width
+                )
 
     def draw_agents(self):
         for agent in self.agents_handler.agents:
@@ -78,15 +88,22 @@ class ShowSim:
             rect_x = col * self.cell_size
             rect_y = row * self.cell_size
             pygame.draw.rect(
-                self.screen, agent.color,
+                self.screen,
+                agent.color,
                 (rect_x, rect_y, self.cell_size, self.cell_size),
-                0
+                0,
             )
-            pygame.draw.rect(self.screen, agent.color,
-                             (agent.desination_col*self.cell_size, agent.desination_row *
-                              self.cell_size, self.cell_size, self.cell_size),
-                             0
-                             )
+            pygame.draw.rect(
+                self.screen,
+                agent.color,
+                (
+                    agent.desination_col * self.cell_size,
+                    agent.desination_row * self.cell_size,
+                    self.cell_size,
+                    self.cell_size,
+                ),
+                0,
+            )
 
     def get_grid_position(self, pos):
         x, y = pos
@@ -101,8 +118,7 @@ class ShowSim:
         if self.brush_radius < 1:
             grid[center_row][center_col].is_wall = True
             return
-        start = (center_row - self.brush_radius,
-                 center_col - self.brush_radius)
+        start = (center_row - self.brush_radius, center_col - self.brush_radius)
         end = (center_row + self.brush_radius, center_col + self.brush_radius)
         for row in range(start[0], end[0]):
             for col in range(start[1], end[1]):
@@ -117,8 +133,7 @@ class ShowSim:
         if self.brush_radius < 1:
             grid[center_row][center_col].is_wall = False
             return
-        start = (center_row - self.brush_radius,
-                 center_col - self.brush_radius)
+        start = (center_row - self.brush_radius, center_col - self.brush_radius)
         end = (center_row + self.brush_radius, center_col + self.brush_radius)
         for row in range(start[0], end[0]):
             for col in range(start[1], end[1]):
@@ -126,8 +141,7 @@ class ShowSim:
 
     def draw_agents_paths(self):
         for agent in self.agents_handler.agents:
-            self.draw_path(agent.route_travelled,
-                           color=agent.color)
+            self.draw_path(agent.route_travelled, color=agent.color)
 
     def run(self):
         running = True
@@ -144,10 +158,6 @@ class ShowSim:
                     elif event.key == pygame.K_g:
                         self.grid.export()
                         print("file saved")
-                    elif event.key == pygame.K_k:
-                        self.agents_handler.agents[0]._destination = (10, 10)
-                        print("updated the destination of the agent to ",
-                              self.agents_handler.agents[0]._destination)
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
@@ -158,7 +168,10 @@ class ShowSim:
                             self.set_not_is_wall((row, col))
                             self.last_tile_flipped = (row, col)
                         else:
-                            if row == self.agents_handler.agents[0].desination_row and col == self.agents_handler.agents[0].desination_col:
+                            if (
+                                row == self.agents_handler.agents[0].desination_row
+                                and col == self.agents_handler.agents[0].desination_col
+                            ):
                                 self.holding_desination = True
                     elif event.button == 3:
                         if not self.start and self.last_tile_flipped != (row, col):
@@ -169,22 +182,30 @@ class ShowSim:
                     if self.mouse_held:
                         pos = pygame.mouse.get_pos()
                         row, col = self.get_grid_position(pos)
-                        if not self.start and self.last_tile_flipped != (row, col) and pygame.mouse.get_pressed()[0]:
+                        if (
+                            not self.start
+                            and self.last_tile_flipped != (row, col)
+                            and pygame.mouse.get_pressed()[0]
+                        ):
                             self.set_not_is_wall((row, col))
                             self.last_tile_flipped = (row, col)
 
-                        elif not self.start and self.last_tile_flipped != (row, col) and pygame.mouse.get_pressed()[1]:
+                        elif (
+                            not self.start
+                            and self.last_tile_flipped != (row, col)
+                            and pygame.mouse.get_pressed()[1]
+                        ):
                             self.set_not_is_wall((row, col))
                             self.last_tile_flipped = (row, col)
                         if self.holding_desination:
                             rect_x = col * self.cell_size
                             rect_y = row * self.cell_size
                             pygame.draw.rect(
-                                self.screen, (255, 0, 0),
+                                self.screen,
+                                (255, 0, 0),
                                 (rect_x, rect_y, self.cell_size, self.cell_size),
-                                0
+                                0,
                             )
-                            print("test")
 
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
@@ -192,8 +213,7 @@ class ShowSim:
                         if self.holding_desination:
                             pos = pygame.mouse.get_pos()
                             row, col = self.get_grid_position(pos)
-                            self.agents_handler.agents[0]._destination = (
-                                row, col)
+                            self.agents_handler.agents[0]._destination = (row, col)
                             self.holding_desination = False
 
             self.draw_grid()
@@ -208,15 +228,15 @@ pygame.quit()
 
 
 if __name__ == "__main__":
-    grid_width, grid_height = 100, 100
-# 340, 130
+    grid_width, grid_height = 10, 10
+    # 340, 130
     grid = make_maze_recursion(grid_width, grid_height)
     # grid = Grid(width=grid_width, height=grid_height,
     #             border_walls=True, fill=True)
     # grid = Grid(file_path="./test.txt")
 
     agents = [
-        Agent(1, 1, grid_height-2, grid_width-2),
+        LoopingAgent(1, 1, grid_height - 2, grid_width - 2),
         # Agent(1, grid_width-2, grid_height-2, 1),
         # Agent(grid_height-2, 1, 1, grid_width-2),
         # Agent(grid_height-2, grid_width-2, 1, 1)
