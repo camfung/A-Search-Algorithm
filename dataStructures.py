@@ -311,19 +311,12 @@ class LoopingAgent(Agent):
             pass
 
         if len(self.route_planned) < 1:
+            self.destination = self.route_travelled[0]
             self.route_travelled.reverse()
-            print(
-                "________________treavelld before______________", self.route_travelled
-            )
-            print("_________________planned before ______________", self.route_planned)
             self.route_planned = [copy.deepcopy(cord) for cord in self.route_travelled]
             self.route_travelled.clear()  # Clear travelled route
-            print("________________treavelld after______________", self.route_travelled)
-            print("_________________planned after ______________", self.route_planned)
 
         if self.route_planned:
             row, col = self.route_planned.pop(0)
             self.row, self.col = row, col
             self.route_travelled.append((row, col))
-            print("route planned:", self.route_planned)
-            print("route travelled:", self.route_travelled)
