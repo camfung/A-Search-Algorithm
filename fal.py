@@ -5,7 +5,7 @@ from sim import Sim
 import socketio
 import time
 from flask import Flask
-
+from flask_cors import CORS
 
 grid_width, grid_height = 10, 10
 # grid = Grid(width=10, height=10)
@@ -33,7 +33,8 @@ def run_simulation():
 
 # Initialize Flask app and Socket.IO server
 app = Flask(__name__)
-sio = socketio.Server()
+CORS(app)
+sio = socketio.Server(cors_allowed_origins="*")
 
 # Wrap the Flask app with Socket.IO's WSGI middleware
 app.wsgi_app = socketio.WSGIApp(sio, app.wsgi_app)
@@ -42,7 +43,10 @@ app.wsgi_app = socketio.WSGIApp(sio, app.wsgi_app)
 @sio.event
 def connect(sid, environ):
     print("Client connected:", sid)
-    sio.emit("onConnect", grid.get_walls())
+    sio.emit(
+        "onConnect",
+        {"walls": grid.get_walls(), "dimensions": (grid.width, grid.height)},
+    )
 
 
 @sio.event

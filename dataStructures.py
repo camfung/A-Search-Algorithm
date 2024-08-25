@@ -29,7 +29,7 @@ class Grid:
         self.width = width
         self.height = height
         if file_path:
-            self.import_grid(file_path)
+            self.import_grid_from_file(file_path)
         else:
             self.grid = [
                 [Spot(row, col) for col in range(width)] for row in range(height)
@@ -92,8 +92,11 @@ class Grid:
 
         return grid_size, tuple(coordinates)
 
-    def import_grid(self, file_path: str):
+    def import_grid_from_file(self, file_path: str):
         grid_size, walls = self.read_file_into_memory(file_path)
+        self.import_grid(grid_size, walls)
+
+    def import_grid(self, grid_size, walls):
         walls_dict = {coord: True for coord in walls}
 
         self.grid = []
