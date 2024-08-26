@@ -1,5 +1,6 @@
 console.log("client script loaded") 
 const socket = io.connect("http://localhost:5000"); 
+console.log("test")
 socket.emit("join")
 
 let agents = [] 
@@ -7,6 +8,10 @@ let agents = []
 let grid  = null
 
 socket.on("join", (data) => {
+}); 
+socket.on("gridupdate", (data) => {
+    grid = data
+    drawMaze(grid)
 }); 
 
 socket.on("onConnect", (data) => {
@@ -24,7 +29,6 @@ function drawMaze(data) {
     const [rows, cols] = data.dimensions;
 
     const canvas = document.getElementById("canvas")
-	console.log(canvas)
     canvas.width = cols * 20;
     canvas.height = rows * 20;
     const ctx = canvas.getContext('2d');
@@ -45,4 +49,7 @@ function drawAgents(data) {
 		ctx.fillStyle = "blue"
 		ctx.fillRect(y * 20, x * 20, 20, 20); 
 	})
+}
+function test() {
+    socket.emit("resetgrid")
 }

@@ -1,12 +1,15 @@
 import threading
+import logging
 from MakeMaze import make_maze_recursion
+from datetime import datetime
 from dataStructures import Grid, LoopingAgent, AgentsHandler
 from sim import Sim
 import socketio
 import time
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 
+logger = logging.getLogger(__name__)
 grid_width, grid_height = 10, 10
 # grid = Grid(width=10, height=10)
 grid = make_maze_recursion(grid_width, grid_height)
@@ -40,7 +43,7 @@ sio = socketio.Server(cors_allowed_origins="*")
 app.wsgi_app = socketio.WSGIApp(sio, app.wsgi_app)
 
 
-@sio.event
+@sio.event()
 def connect(sid, environ):
     print("Client connected:", sid)
     sio.emit(
@@ -49,15 +52,27 @@ def connect(sid, environ):
     )
 
 
-@sio.event
+@sio.event()
 def disconnect(sid):
     print("Client disconnected:", sid)
+
+
+@sio.event()
+def resetgrid(sid):
+    print("reset grid called")
+    grid = make_maze_recursion(grid_width, grid_height)
+    print({"walls": grid.get_walls(), "dimensions": (grid.width, grid.height)})
+
+    sio.emit(
+        "gridupdate",
+        {"walls": grid.get_walls(), "dimensions": (grid.width, grid.height)},
+    )
 
 
 # Define a route for the Flask app (optional)
 @app.route("/")
 def index():
-    return "Socket.IO server is running!"
+    return "server is running"
 
 
 # Start the simulation in a separate thread
@@ -66,5 +81,5 @@ simulation_thread.start()
 
 # Start the Flask server
 if __name__ == "__main__":
-
+    logging.basicConfig(filename="datetime.today().strftime('%Y-%m-%d')")
     app.run(host="localhost", port=5000)
