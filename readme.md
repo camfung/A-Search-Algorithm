@@ -3,7 +3,7 @@
 To run this project, install all the dependencies in the `requirements.txt` file. Then run the server using the `server.py` file.
 
 ## Demo
-![[maze.mp4]]
+![[mazedemo.gif]]
 
 ## Motivation
 
