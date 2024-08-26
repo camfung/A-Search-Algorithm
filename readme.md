@@ -2,6 +2,9 @@
 
 To run this project, install all the dependencies in the `requirements.txt` file. Then run the server using the `server.py` file.
 
+## Demo
+![[maze.mp4]]
+
 ## Motivation
 
 The motivation for this project was to create a client-server app with a server-side simulation that can be viewed and interacted with by a client. I wanted to make an online game, but found it too complicated, so I took something I had a good understanding of (the maze and maze solver simulation) and turned it into a client-server application.
