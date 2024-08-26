@@ -4,6 +4,7 @@ To run this project, install all the dependencies in the `requirements.txt` file
 
 ## Demo
 ![](/mazedemo.gif)
+this is a bit older i need to update it with the html/js one
 
 ## Motivation
 
