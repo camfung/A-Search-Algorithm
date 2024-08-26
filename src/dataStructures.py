@@ -1,4 +1,5 @@
 import datetime
+import copy
 from enum import Enum
 from typing import List
 
@@ -28,7 +29,7 @@ class Grid:
         self.width = width
         self.height = height
         if file_path:
-            self.import_grid(file_path)
+            self.import_grid_from_file(file_path)
         else:
             self.grid = [
                 [Spot(row, col) for col in range(width)] for row in range(height)
@@ -66,12 +67,16 @@ class Grid:
             for row in range(self.height):
                 self.grid[row][startcol].set_wall()
 
-    def export(self):
+    def get_walls(self):
         walls = []
         for col in self.grid:
             for spot in col:
                 if spot.is_wall:
                     walls.append((spot.row, spot.col))
+        return walls
+
+    def export(self):
+        walls = self.get_walls()
 
         with open(str(datetime.datetime.now()), "w") as file:
             file.write(f"{self.width}, {self.height}\n")
@@ -87,8 +92,11 @@ class Grid:
 
         return grid_size, tuple(coordinates)
 
-    def import_grid(self, file_path: str):
+    def import_grid_from_file(self, file_path: str):
         grid_size, walls = self.read_file_into_memory(file_path)
+        self.import_grid(grid_size, walls)
+
+    def import_grid(self, grid_size, walls):
         walls_dict = {coord: True for coord in walls}
 
         self.grid = []
@@ -175,6 +183,15 @@ class Agent:
         self.color = (255, 0, 0)
         self.id = Agent._id_counter
         Agent._id_counter += 1
+
+    @property
+    def pos(self):
+        return (self.row, self.col)
+
+    @pos.setter
+    def pos(self, value):
+        self.row = value[0]
+        self.col = value[1]
 
     @property
     def destination(self):
@@ -310,12 +327,12 @@ class LoopingAgent(Agent):
             pass
 
         if len(self.route_planned) < 1:
+            self.destination = self.route_travelled[0]
             self.route_travelled.reverse()
-            self.route_planned = self.route_travelled
-            self.route_travelled = []
+            self.route_planned = [copy.deepcopy(cord) for cord in self.route_travelled]
+            self.route_travelled.clear()
 
-        row, col = self.route_planned.pop(0)
-        self.row, self.col = row, col
-        self.route_travelled.append((row, col))
-        print("route planned:", self.route_planned)
-        print("route travelled:", self.route_travelled)
+        if self.route_planned:
+            row, col = self.route_planned.pop(0)
+            self.row, self.col = row, col
+            self.route_travelled.append((row, col))

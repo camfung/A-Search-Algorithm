@@ -26,7 +26,7 @@ class ShowSim:
         self.outline_width = outline_width
         self.width = grid.width * cell_size
         self.height = grid.height * cell_size
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self._screen = pygame.display.set_mode((self.width, self.height))
         self.agents_handler = agents_handler
         self.start = False
         self.mouse_held = False
@@ -48,10 +48,12 @@ class ShowSim:
                 rect_y = row * self.cell_size
                 color = (0, 0, 255) if spot.is_wall else (255, 255, 255)
                 pygame.draw.rect(
-                    self.screen, color, (rect_x, rect_y, self.cell_size, self.cell_size)
+                    self._screen,
+                    color,
+                    (rect_x, rect_y, self.cell_size, self.cell_size),
                 )
                 pygame.draw.rect(
-                    self.screen,
+                    self._screen,
                     (0, 0, 0),
                     (rect_x, rect_y, self.cell_size, self.cell_size),
                     self.outline_width,
@@ -78,7 +80,7 @@ class ShowSim:
         if len(pixel_path) > 1:
             for i in range(len(pixel_path) - 1):
                 pygame.draw.line(
-                    self.screen, color, pixel_path[i], pixel_path[i + 1], line_width
+                    self._screen, color, pixel_path[i], pixel_path[i + 1], line_width
                 )
 
     def draw_agents(self):
@@ -88,13 +90,13 @@ class ShowSim:
             rect_x = col * self.cell_size
             rect_y = row * self.cell_size
             pygame.draw.rect(
-                self.screen,
+                self._screen,
                 agent.color,
                 (rect_x, rect_y, self.cell_size, self.cell_size),
                 0,
             )
             pygame.draw.rect(
-                self.screen,
+                self._screen,
                 agent.color,
                 (
                     agent.desination_col * self.cell_size,
@@ -146,82 +148,89 @@ class ShowSim:
     def run(self):
         running = True
         while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == self.update_agents_event and self.start:
-                    self.agents_handler.update_agents()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        self.agents_handler.calculate_agents_routes()
-                        self.start = True
-                    elif event.key == pygame.K_g:
-                        self.grid.export()
-                        print("file saved")
-
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        self.mouse_held = True
-                        pos = pygame.mouse.get_pos()
-                        row, col = self.get_grid_position(pos)
-                        if not self.start and self.last_tile_flipped != (row, col):
-                            self.set_not_is_wall((row, col))
-                            self.last_tile_flipped = (row, col)
-                        else:
-                            if (
-                                row == self.agents_handler.agents[0].desination_row
-                                and col == self.agents_handler.agents[0].desination_col
-                            ):
-                                self.holding_desination = True
-                    elif event.button == 3:
-                        if not self.start and self.last_tile_flipped != (row, col):
-                            self.set_is_wall((row, col))
-                            self.last_tile_flipped = (row, col)
-
-                elif event.type == pygame.MOUSEMOTION:
-                    if self.mouse_held:
-                        pos = pygame.mouse.get_pos()
-                        row, col = self.get_grid_position(pos)
-                        if (
-                            not self.start
-                            and self.last_tile_flipped != (row, col)
-                            and pygame.mouse.get_pressed()[0]
-                        ):
-                            self.set_not_is_wall((row, col))
-                            self.last_tile_flipped = (row, col)
-
-                        elif (
-                            not self.start
-                            and self.last_tile_flipped != (row, col)
-                            and pygame.mouse.get_pressed()[1]
-                        ):
-                            self.set_not_is_wall((row, col))
-                            self.last_tile_flipped = (row, col)
-                        if self.holding_desination:
-                            rect_x = col * self.cell_size
-                            rect_y = row * self.cell_size
-                            pygame.draw.rect(
-                                self.screen,
-                                (255, 0, 0),
-                                (rect_x, rect_y, self.cell_size, self.cell_size),
-                                0,
-                            )
-
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1:
-                        self.mouse_held = False
-                        if self.holding_desination:
-                            pos = pygame.mouse.get_pos()
-                            row, col = self.get_grid_position(pos)
-                            self.agents_handler.agents[0]._destination = (row, col)
-                            self.holding_desination = False
-
-            self.draw_grid()
-            self.draw_agents_paths()
-            self.draw_agents()
             pygame.display.flip()
+            self.handle_events()
 
             ShowSim.clock.tick(60)
+
+    def handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == self.update_agents_event and self.start:
+                self.agents_handler.update_agents()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.agents_handler.calculate_agents_routes()
+                    self.start = True
+                elif event.key == pygame.K_g:
+                    self.grid.export()
+                    print("file saved")
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    self.mouse_held = True
+                    pos = pygame.mouse.get_pos()
+                    row, col = self.get_grid_position(pos)
+                    if not self.start and self.last_tile_flipped != (row, col):
+                        self.set_not_is_wall((row, col))
+                        self.last_tile_flipped = (row, col)
+                    else:
+                        if (
+                            row == self.agents_handler.agents[0].desination_row
+                            and col == self.agents_handler.agents[0].desination_col
+                        ):
+                            self.holding_desination = True
+                elif event.button == 3:
+                    if not self.start and self.last_tile_flipped != (row, col):
+                        self.set_is_wall((row, col))
+                        self.last_tile_flipped = (row, col)
+
+            elif event.type == pygame.MOUSEMOTION:
+                if self.mouse_held:
+                    pos = pygame.mouse.get_pos()
+                    row, col = self.get_grid_position(pos)
+                    if (
+                        not self.start
+                        and self.last_tile_flipped != (row, col)
+                        and pygame.mouse.get_pressed()[0]
+                    ):
+                        self.set_not_is_wall((row, col))
+                        self.last_tile_flipped = (row, col)
+
+                    elif (
+                        not self.start
+                        and self.last_tile_flipped != (row, col)
+                        and pygame.mouse.get_pressed()[1]
+                    ):
+                        self.set_not_is_wall((row, col))
+                        self.last_tile_flipped = (row, col)
+                    if self.holding_desination:
+                        rect_x = col * self.cell_size
+                        rect_y = row * self.cell_size
+                        pygame.draw.rect(
+                            self._screen,
+                            (255, 0, 0),
+                            (rect_x, rect_y, self.cell_size, self.cell_size),
+                            0,
+                        )
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    self.mouse_held = False
+                    if self.holding_desination:
+                        pos = pygame.mouse.get_pos()
+                        row, col = self.get_grid_position(pos)
+                        self.agents_handler.agents[0]._destination = (row, col)
+                        self.holding_desination = False
+
+        self.draw_grid()
+        self.draw_agents_paths()
+        self.draw_agents()
+
+    @property
+    def screen(self):
+        return self._screen
 
 
 pygame.quit()
@@ -230,10 +239,10 @@ pygame.quit()
 if __name__ == "__main__":
     grid_width, grid_height = 10, 10
     # 340, 130
-    grid = make_maze_recursion(grid_width, grid_height)
+    # grid = make_maze_recursion(grid_width, grid_height)
     # grid = Grid(width=grid_width, height=grid_height,
     #             border_walls=True, fill=True)
-    # grid = Grid(file_path="./test.txt")
+    grid = Grid(file_path="./test.txt")
 
     agents = [
         LoopingAgent(1, 1, grid_height - 2, grid_width - 2),
