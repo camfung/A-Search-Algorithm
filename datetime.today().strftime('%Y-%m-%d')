@@ -182,3 +182,35 @@ INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 12:43:28] "GET /socket.io/?EIO=4&transp
 INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 12:43:28] "GET /socket.io/?EIO=4&transport=polling&t=P6GDlv- HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 12:43:28] "POST /socket.io/?EIO=4&transport=polling&t=P6GDlwE&sid=eXKWBmrHDtjd2VXGAAAo HTTP/1.1" 200 -
 INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 12:43:28] "GET /socket.io/?EIO=4&transport=polling&t=P6GDlwH&sid=eXKWBmrHDtjd2VXGAAAo HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 12:55:47] "GET /socket.io/?EIO=4&transport=websocket&sid=eXKWBmrHDtjd2VXGAAAo HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:24:28] "GET /socket.io/?EIO=4&transport=polling&t=P6GN8I9 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:24:28] "POST /socket.io/?EIO=4&transport=polling&t=P6GN8In&sid=sLwdCN1yj8dvlZ3uAAAq HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:24:28] "GET /socket.io/?EIO=4&transport=polling&t=P6GN8Ip&sid=sLwdCN1yj8dvlZ3uAAAq HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:24:55] "GET /socket.io/?EIO=4&transport=websocket&sid=sLwdCN1yj8dvlZ3uAAAq HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:24:55] "GET /socket.io/?EIO=4&transport=polling&t=P6GNEzg HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:24:55] "POST /socket.io/?EIO=4&transport=polling&t=P6GNEzp&sid=VhQF96ipTRXA0WlnAAAs HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:24:55] "GET /socket.io/?EIO=4&transport=polling&t=P6GNEzq&sid=VhQF96ipTRXA0WlnAAAs HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:45] "GET /socket.io/?EIO=4&transport=polling&t=P6GPGVJ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:45] "POST /socket.io/?EIO=4&transport=polling&t=P6GPGVQ&sid=nunMSu_8cweHncFnAAAu HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:45] "GET /socket.io/?EIO=4&transport=polling&t=P6GPGVR&sid=nunMSu_8cweHncFnAAAu HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:45] "GET /socket.io/?EIO=4&transport=polling&t=P6GPGVe&sid=nunMSu_8cweHncFnAAAu HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:45] "POST /socket.io/?EIO=4&transport=polling&t=P6GPGVi&sid=nunMSu_8cweHncFnAAAu HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:51] "GET /socket.io/?EIO=4&transport=websocket&sid=VhQF96ipTRXA0WlnAAAs HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:51] "GET /socket.io/?EIO=4&transport=polling&t=P6GPHto HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:51] "POST /socket.io/?EIO=4&transport=polling&t=P6GPHty&sid=Dx_IFEhbgbBnj6TFAAAw HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:51] "GET /socket.io/?EIO=4&transport=polling&t=P6GPHt-&sid=Dx_IFEhbgbBnj6TFAAAw HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:51] "GET /socket.io/?EIO=4&transport=polling&t=P6GPHuD&sid=Dx_IFEhbgbBnj6TFAAAw HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:55] "GET /socket.io/?EIO=4&transport=websocket&sid=Dx_IFEhbgbBnj6TFAAAw HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:56] "GET /socket.io/?EIO=4&transport=polling&t=P6GPIyx HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:56] "POST /socket.io/?EIO=4&transport=polling&t=P6GPIz5&sid=EQ-QnVWU2XGyiOlvAAAy HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:56] "GET /socket.io/?EIO=4&transport=polling&t=P6GPIz6&sid=EQ-QnVWU2XGyiOlvAAAy HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:56] "GET /socket.io/?EIO=4&transport=polling&t=P6GPIzJ&sid=EQ-QnVWU2XGyiOlvAAAy HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:56] "POST /socket.io/?EIO=4&transport=polling&t=P6GPIzL&sid=EQ-QnVWU2XGyiOlvAAAy HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:33:57] "GET /socket.io/?EIO=4&transport=websocket&sid=nunMSu_8cweHncFnAAAu HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://localhost:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:37:31] "GET /socket.io/?EIO=4&transport=polling&t=P6GQ7e0 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:37:31] "POST /socket.io/?EIO=4&transport=polling&t=P6GQ7eD&sid=vP9O564E9_DI06aYAAAA HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:37:31] "GET /socket.io/?EIO=4&transport=polling&t=P6GQ7eF&sid=vP9O564E9_DI06aYAAAA HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [26/Aug/2024 13:37:31] "GET /socket.io/?EIO=4&transport=polling&t=P6GQ7eN&sid=vP9O564E9_DI06aYAAAA HTTP/1.1" 200 -

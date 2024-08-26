@@ -81,5 +81,5 @@ simulation_thread.start()
 
 # Start the Flask server
 if __name__ == "__main__":
-    logging.basicConfig(filename="datetime.today().strftime('%Y-%m-%d')")
+    logging.basicConfig(filename=f"{ datetime.today().strftime('%Y-%m-%d') }")
     app.run(host="localhost", port=5000)
